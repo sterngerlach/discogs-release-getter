@@ -8,12 +8,19 @@ import json
 def main():
     json_files = glob.glob("datasets/label_[0-9]*.json")
     concat_data = []
+    release_ids = []
     
     for file_name in json_files:
         label_file = open(file_name, "r", encoding="utf-8")
         label_data = json.load(label_file)[0]
+        releases = []
 
         for release in label_data["releases"]:
+            if release["id"] in release_ids:
+                continue
+
+            release_ids.append(release["id"])
+
             position = 1
 
             for track in release["tracks"]:
@@ -24,6 +31,9 @@ def main():
                 del release["rating_count"]
                 del release["rating"]
 
+            releases.append(release)
+        
+        label_data["releases"] = releases
         concat_data.append(label_data)
         label_file.close()
 
